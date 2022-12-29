@@ -95,10 +95,11 @@ export class KoLBot {
   }
 
   private async loop(cb: (message: IncomingMessage) => any) {
-    await Promise.all([
-      this._client.fetchNewChats().then((msgs) => msgs.map((msg) => cb(msg))),
-      this._client.fetchNewKmails().then((msgs) => msgs.map((msg) => cb(msg))),
+    const messages = await Promise.all([
+      this._client.fetchNewChats(),
+      this._client.fetchNewKmails(),
     ]);
+    await Promise.all(messages.flatMap((msg) => msg).map((msg) => cb(msg)));
     await wait(3000);
     await this.loop(cb);
   }
